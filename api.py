@@ -1,7 +1,7 @@
 """ API access to other Dojo apps
 
-Here we have wrappers for accessing data in other Hacker Dojo applications that
-take care of local caching and failure scenarios. 
+Here we have wrappers for accessing data in other Hacker Dojo applications. 
+They will take care of local caching and failure scenarios. 
 
 One common failure scenario is that App Engine instances can take a while to 
 respond as they spin up after a period of inactivity, which commonly times out 

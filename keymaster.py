@@ -24,10 +24,15 @@ In the case where you might be getting a new access token periodically, say
 with cron.yaml, you can also use keymaster.set(key, secret)
 
 """
-from google.appengine.api import urlfetch, memcache, users
-from google.appengine.ext import webapp, db
-from google.appengine.ext.webapp import util
 import os
+
+from google.appengine.api import memcache
+from google.appengine.api import urlfetch
+from google.appengine.api import users
+from google.appengine.ext import db
+from google.appengine.ext import webapp
+from google.appengine.ext.webapp import util
+
 try:
     from Crypto.Cipher import ARC4
 except ImportError:
