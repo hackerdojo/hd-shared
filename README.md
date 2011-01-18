@@ -1,16 +1,14 @@
 # Shared Resources
 
-This is a collection of shared modules and resources for other Dojo applications. It should be included
-as a submodule to all Dojo app repositories. It's recommended to keep it pointed to the public canonical
-Hacker Dojo repo as a directory called "shared" at the root of your project directory. Like so:
+This is a collection of shared modules and resources for Hacker Dojo applications. It should be included as a submodule to all Dojo app repositories. 
+
+## Including in a new Dojo app repo
+
+It's recommended to point to the public canonical hd-shared repo as a directory called "shared" at the root of your Dojo app project directory. Here is the command to set it up:
 
     git submodule add git://github.com/hackerdojo/hd-shared.git shared
 
-which will give you a .submodule file that looks like this:
-
-    [submodule "shared"]
-        path = shared
-        url = git://github.com/hackerdojo/hd-shared.git
+Now you will have access to these shared resources in your Dojo project under the "shared" directory.
 
 ## Running Tests
 
