@@ -5,7 +5,7 @@ setting and then getting at secret keys for other services. To use, just
 include this line in your app.yaml under handlers:
 
 - url: /_km/.*
-  script: keymaster.py
+  script: shared/keymaster.py
   login: admin
 
 Now you can go to /_km/key as an admin user to create a key. You enter the
@@ -16,7 +16,7 @@ layer of obfuscation. If you can't hash a password, at least obfuscate it!
 
 Using the API is just importing and then using the get function:
 
-import keymaster
+from shared import keymaster
 
 descrypted_password = keymaster.get('some_service:api_key')
 
