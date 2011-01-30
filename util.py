@@ -34,7 +34,7 @@ def flatten(l):
             out.append(item)
     return out
 
-def RedirectException(Exception):
+class RedirectException(Exception):
     def __init__(self, uri, message):
         self.uri = uri
         super(RedirectException, self).__init__(message)
@@ -50,7 +50,7 @@ def RedirectException(Exception):
                 lines = ''.join(traceback.format_exception(*sys.exc_info()))
                 self.response.clear()
                 self.response.out.write('<pre>%s</pre>' % (cgi.escape(lines, quote=True)))
-            
+
 # webapp framework monkey patch to support RedirectException
 webapp.RequestHandler.handle_exception = RedirectException.handle_exception
 
