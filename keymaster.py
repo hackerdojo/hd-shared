@@ -25,6 +25,7 @@ with cron.yaml, you can also use keymaster.set(key, secret)
 
 """
 import os
+import urllib
 
 from google.appengine.api import memcache
 from google.appengine.api import urlfetch
@@ -58,7 +59,7 @@ class Keymaster(db.Model):
     @classmethod
     def decrypt(cls, key_name):
         k = cls.get_by_key_name(str(key_name))
-        if not k:
+        if k is None:
             raise Exception("Keymaster has no secret for %s" % key_name)
         return ARC4.new(os.environ['APPLICATION_ID']).encrypt(k.secret)
 
@@ -70,14 +71,21 @@ def set(key, secret):
 
 class KeymasterHandler(webapp.RequestHandler):
     @util.login_required
-    def get(self):
+    def get(self, key=None):
         if users.is_current_user_admin():
-            self.response.out.write("""<html><body><form method="post">
-                <input type="text" name="key" /><input type="text" name="secret" /><input type="submit" /></form></body></html>""")
+            if key:
+                key = urllib.unquote(key)
+                self.response.out.write("""<html><body><form method="post">
+                    <input type="hidden" name="key" value="%(key)s" />
+                    Need a key for <strong>%(key)s</strong>: <input type="text" name="secret" /> <input type="submit" value="Save" /></form></body></html>""" % locals())
+            else:
+                self.response.out.write("""<html><body><form method="post">
+                    Key name: <input type="text" name="key" /><br />
+                    Key secret: <input type="text" name="secret" /> <input type="submit" value="Save" /></form></body></html>""")
         else:
             self.redirect('/')
         
-    def post(self):
+    def post(self, key=None):
         if users.is_current_user_admin():
             Keymaster.encrypt(self.request.get('key'), self.request.get('secret'))
             self.response.out.write("Saved: %s" % Keymaster.decrypt(self.request.get('key')))
@@ -87,6 +95,7 @@ class KeymasterHandler(webapp.RequestHandler):
 def main():
     application = webapp.WSGIApplication([
         ('/_km/key', KeymasterHandler),
+        ('/_km/key/(.+)', KeymasterHandler),
         ],debug=True)
     util.run_wsgi_app(application)
 
