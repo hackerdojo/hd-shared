@@ -32,7 +32,9 @@ from google.appengine.api import urlfetch
 from google.appengine.api import users
 from google.appengine.ext import db
 from google.appengine.ext import webapp
-from google.appengine.ext.webapp import util
+from google.appengine.ext.webapp.util import run_wsgi_app
+
+from util import RedirectException
 
 try:
     from Crypto.Cipher import ARC4
@@ -97,7 +99,7 @@ def main():
         ('/_km/key', KeymasterHandler),
         ('/_km/key/(.+)', KeymasterHandler),
         ],debug=True)
-    util.run_wsgi_app(application)
+    run_wsgi_app(application)
 
 if __name__ == '__main__':
     main()
