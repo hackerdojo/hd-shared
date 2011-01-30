@@ -32,7 +32,7 @@ from google.appengine.api import urlfetch
 from google.appengine.api import users
 from google.appengine.ext import db
 from google.appengine.ext import webapp
-from google.appengine.ext.webapp.util import run_wsgi_app
+from google.appengine.ext.webapp import util
 
 from util import RedirectException
 
@@ -99,7 +99,7 @@ def main():
         ('/_km/key', KeymasterHandler),
         ('/_km/key/(.+)', KeymasterHandler),
         ],debug=True)
-    run_wsgi_app(application)
+    util.run_wsgi_app(application)
 
 if __name__ == '__main__':
     main()
