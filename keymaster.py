@@ -60,7 +60,7 @@ class Keymaster(db.Model):
     def decrypt(cls, key_name):
         k = cls.get_by_key_name(str(key_name))
         if k is None:
-            raise Exception("Keymaster has no secret for %s" % key_name)
+            raise RedirectException('/_km/key/%s' % key_name, "Keymaster has no secret for %s" % key_name)
         return ARC4.new(os.environ['APPLICATION_ID']).encrypt(k.secret)
 
 def get(key):
