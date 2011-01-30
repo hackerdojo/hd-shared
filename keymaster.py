@@ -34,7 +34,7 @@ from google.appengine.ext import db
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 
-from util import RedirectException
+from utils import RedirectException
 
 try:
     from Crypto.Cipher import ARC4
