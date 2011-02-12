@@ -5,7 +5,7 @@ setting and then getting at secret keys for other services. To use, just
 include this line in your app.yaml under handlers:
 
 - url: /_km/.*
-  script: shared/keymaster.py
+  script: shared/lib/keymaster.py
   login: admin
 
 Now you can go to /_km/key as an admin user to create a key. You enter the
