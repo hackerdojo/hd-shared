@@ -1,15 +1,15 @@
 """ API access to other Dojo apps
 
-Here we have wrappers for accessing data in other Hacker Dojo applications. 
-They will take care of local caching and failure scenarios. 
+Here we have wrappers for accessing data in other Hacker Dojo applications.
+They will take care of local caching and failure scenarios.
 
-One common failure scenario is that App Engine instances can take a while to 
-respond as they spin up after a period of inactivity, which commonly times out 
-the App Engine API for making HTTP requests. The core request caching 
+One common failure scenario is that App Engine instances can take a while to
+respond as they spin up after a period of inactivity, which commonly times out
+the App Engine API for making HTTP requests. The core request caching
 machanism here attempts to deal with this by keeping a failover copy of the
-last good response that it will use when a request cache expires and the new 
-request fails to respond in a timely fashion. It will keep using this while 
-trying every time until it gets a good response. 
+last good response that it will use when a request cache expires and the new
+request fails to respond in a timely fashion. It will keep using this while
+trying every time until it gets a good response.
 
 """
 from google.appengine.api import memcache
@@ -24,7 +24,8 @@ def _request(url, cache_ttl=3600, force=False):
     resp = memcache.get(request_cache_key)
     if force or not resp:
         try:
-            resp = simplejson.loads(urlfetch.fetch(url, deadline=DEADLINE).content)
+            resp = simplejson.loads(urlfetch.fetch(url, deadline=DEADLINE,
+                                    follow_redirects=False).content)
             memcache.set(request_cache_key, resp, cache_ttl)
             memcache.set(failure_cache_key, resp, cache_ttl*10)
         except (ValueError, urlfetch.DownloadError), e:
@@ -33,8 +34,8 @@ def _request(url, cache_ttl=3600, force=False):
             if not resp:
                 resp = []
     return resp
-        
+
 
 def domain(path, force=False):
-    base_url = 'http://domain.hackerdojo.com'
+    base_url = 'http://hd-domain-hrd.appspot.com'
     return _request(base_url + path, force=force)
