@@ -115,11 +115,20 @@ def run_tests(sdk_path, *args):
   import dev_appserver
   dev_appserver.fix_sys_path()
 
-  suite = unittest.loader.TestLoader().discover("tests")
-  test_result = unittest.TextTestRunner(verbosity=2).run(suite)
-  if not test_result.wasSuccessful():
-    print "ERROR: Unit tests failed."
-    return False
+  loader = unittest.loader.TestLoader()
+  suites = []
+  # Shared tests.
+  shared_directory = os.path.dirname(os.path.realpath(__file__))
+  shared_tests = os.path.join(shared_directory, "tests")
+  suites.append(loader.discover(shared_tests, top_level_dir=os.getcwd()))
+  # Project-specific tests.
+  suites.append(loader.discover("tests", top_level_dir=os.getcwd()))
+
+  for suite in suites:
+    test_result = unittest.TextTestRunner(verbosity=2).run(suite)
+    if not test_result.wasSuccessful():
+      print "ERROR: Unit tests failed."
+      return False
 
   return True
 
