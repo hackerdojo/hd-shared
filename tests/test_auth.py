@@ -5,7 +5,6 @@
 import appengine_config
 
 import json
-import os
 import unittest
 import urllib
 
@@ -15,10 +14,6 @@ from google.appengine.ext import testbed
 import webapp2
 
 import webtest
-
-# This has to go before we import the auth module so that the correct settings
-# get loaded.
-os.environ["DJANGO_SETTINGS_MODULE"] = "settings"
 
 from .. import auth
 
@@ -72,11 +67,19 @@ class CurrentUserTestHandler(auth.AuthHandler):
     if current_user:
       self.response.out.write(json.dumps(current_user))
 
+
 """ Same thing for the admin_only handler. """
 class AdminOnlyTestHandler(auth.AuthHandler):
   @auth.AuthHandler.admin_only
   def get(self):
     self.response.out.write("okay")
+
+
+""" We use this as a fake template for auth. """
+class FakeTemplate:
+  def render(self, template_args):
+    return template_args["message"]
+
 
 """ Tests for AuthHandler. """
 class AuthHandlerTest(unittest.TestCase):
@@ -84,6 +87,8 @@ class AuthHandlerTest(unittest.TestCase):
     # Have the handler use SignupSimulator instead of actually fetching URLs.
     self.signup_app = SignupSimulator()
     auth.AuthHandler.URL_FETCHER = self.signup_app
+    # Use fake error template.
+    auth.AuthHandler.ERROR_TEMPLATE = FakeTemplate()
 
     # Create an encapsulating app that will host the TestHandler.
     app = webapp2.WSGIApplication([

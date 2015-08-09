@@ -7,7 +7,6 @@ import urllib
 import urlparse
 
 from google.appengine.api import app_identity, memcache, urlfetch
-from google.appengine.ext.webapp import template
 
 import webapp2
 
@@ -45,6 +44,11 @@ class AuthHandler(webapp2.RequestHandler):
   USER_PROPERTIES_ = ["first_name", "last_name", "email", "groups", "created"]
   # User attributes we are using to simulate login for testing purposes.
   SIMULATED_USER_ = None
+  # Template to use when displaying an error message. Different apps tend to
+  # have different error pages, (and even different templating systems), so this
+  # ensures that error pages integrate smoothly with the rest of the app. The
+  # template should have a "message" parameter that specifies the error message.
+  ERROR_TEMPLATE = None
 
   """ Function meant to be used as a decorator. It's purpose is to ensure that a
   valid user is logged in before running whatever it is decorating.
@@ -82,10 +86,10 @@ class AuthHandler(webapp2.RequestHandler):
 
         # Show the error page.
         logout_url = self.create_logout_url(self.request.uri)
-        response = template.render("templates/error.html",
-            {"error": "You must be an admin to continue." \
-                      " <a href=\"%s\">Click here</a> to try again." % \
-                          (logout_url)})
+        response = self.ERROR_TEMPLATE.render( \
+            {"message": "You must be an admin to continue." \
+             " <a href=\"%s\">Click here</a> to try again." % \
+                (logout_url)})
         self.response.out.write(response)
         self.response.set_status(401)
         return
