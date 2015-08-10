@@ -44,11 +44,6 @@ class AuthHandler(webapp2.RequestHandler):
   USER_PROPERTIES_ = ["first_name", "last_name", "email", "groups", "created"]
   # User attributes we are using to simulate login for testing purposes.
   SIMULATED_USER_ = None
-  # Template to use when displaying an error message. Different apps tend to
-  # have different error pages, (and even different templating systems), so this
-  # ensures that error pages integrate smoothly with the rest of the app. The
-  # template should have a "message" parameter that specifies the error message.
-  ERROR_TEMPLATE = None
 
   """ Function meant to be used as a decorator. It's purpose is to ensure that a
   valid user is logged in before running whatever it is decorating.
@@ -62,36 +57,6 @@ class AuthHandler(webapp2.RequestHandler):
         # They need to log in.
         logging.debug("Redirecting to login page.")
         self.redirect(self.create_login_url(self.request.uri))
-        return
-
-      return function(self, *args, **kwargs)
-
-    return wrapper
-
-  """ Function meant to be used as a decorator. Its purpose is to ensure that a
-  valid user is logged in and is an admin before running whatever it is
-  decorating.
-  function: The function we are decorating.
-  Returns: A wrapped version of the function. """
-  @classmethod
-  def admin_only(cls, function):
-    """ The wrapper function that does the actual check. """
-    @cls.login_required
-    def wrapper(self, *args, **kwargs):
-      # We've already forced a login, so now we just need to check if we are an
-      # admin.
-      user = self.current_user()
-      if "admin" not in user["groups"]:
-        logging.info("User %s is not an admin." % (user["email"]))
-
-        # Show the error page.
-        logout_url = self.create_logout_url(self.request.uri)
-        response = self.ERROR_TEMPLATE.render( \
-            {"message": "You must be an admin to continue." \
-             " <a href=\"%s\">Click here</a> to try again." % \
-                (logout_url)})
-        self.response.out.write(response)
-        self.response.set_status(401)
         return
 
       return function(self, *args, **kwargs)

@@ -68,13 +68,6 @@ class CurrentUserTestHandler(auth.AuthHandler):
       self.response.out.write(json.dumps(current_user))
 
 
-""" Same thing for the admin_only handler. """
-class AdminOnlyTestHandler(auth.AuthHandler):
-  @auth.AuthHandler.admin_only
-  def get(self):
-    self.response.out.write("okay")
-
-
 """ We use this as a fake template for auth. """
 class FakeTemplate:
   def render(self, template_args):
@@ -93,8 +86,7 @@ class AuthHandlerTest(unittest.TestCase):
     # Create an encapsulating app that will host the TestHandler.
     app = webapp2.WSGIApplication([
         ("/test_login_required", LoginRequiredTestHandler),
-        ("/test_current_user", CurrentUserTestHandler),
-        ("/test_admin_only", AdminOnlyTestHandler)], debug=True)
+        ("/test_current_user", CurrentUserTestHandler)], debug=True)
     self.test_app = webtest.TestApp(app)
 
     # Set up testbed.
@@ -198,28 +190,3 @@ class AuthHandlerTest(unittest.TestCase):
     self.assertEqual(200, response.status_int)
     new_user_info = json.loads(response.body)
     self.assertEqual(user_info, new_user_info)
-
-  """ Tests that the admin_only decorator allows admins to access something.
-  """
-  def test_admin_allowed(self):
-    self.test_app.set_cookie("auth", self.auth_cookie_values)
-    self.signup_app.set_response(json.dumps({"valid": True}))
-    # Make the logged-in user an admin.
-    self.signup_app.set_response(json.dumps({
-        "email": "testy.testerson@gmail.com", "groups": ["admin"]}))
-
-    response = self.test_app.get("/test_admin_only")
-    self.assertEqual(200, response.status_int)
-    self.assertEqual("okay", response.body)
-
-  """ Tests that the admin_only decorator blocks normal users. """
-  def test_non_admin_blocked(self):
-    self.test_app.set_cookie("auth", self.auth_cookie_values)
-    self.signup_app.set_response(json.dumps({"valid": True}))
-    # Make the logged-in user an admin.
-    self.signup_app.set_response(json.dumps({
-        "email": "testy.testerson@gmail.com", "groups": []}))
-
-    response = self.test_app.get("/test_admin_only", expect_errors=True)
-    self.assertEqual(401, response.status_int)
-    self.assertIn("must be an admin", response.body)
