@@ -1,6 +1,7 @@
 """ Manages the signup app user authentication system. """
 
 
+import datetime
 import json
 import logging
 import urllib
@@ -44,6 +45,8 @@ class AuthHandler(webapp2.RequestHandler):
   USER_PROPERTIES_ = ["first_name", "last_name", "email", "groups", "created"]
   # User attributes we are using to simulate login for testing purposes.
   SIMULATED_USER_ = None
+  # How many days our sessions last for by default.
+  SESSION_LENGTH = 30
 
   """ Function meant to be used as a decorator. It's purpose is to ensure that a
   valid user is logged in before running whatever it is decorating.
@@ -234,7 +237,10 @@ class AuthHandler(webapp2.RequestHandler):
       logging.debug("Got user %s and token." % (user))
 
       cookie_values = json.dumps({"user": user, "token": token})
-      self.response.set_cookie("auth", cookie_values, httponly=True)
+      expires = datetime.datetime.now() + \
+          datetime.timedelta(days=self.SESSION_LENGTH)
+      self.response.set_cookie("auth", cookie_values, httponly=True,
+                               expires=expires)
 
       # Redirect to a version of the page without them.
       redirect_url = self._remove_params(["user", "token"])
