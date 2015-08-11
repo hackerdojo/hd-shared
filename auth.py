@@ -166,7 +166,7 @@ class AuthHandler(webapp2.RequestHandler):
                                   "properties[]": self.USER_PROPERTIES_}, True)
     url = "%s/api/v1/user?%s" % (self.SIGNUP_URL_, query_str)
     logging.debug("Fetching URL: %s" % (url))
-    response = self.URL_FETCHER.get_response(url)
+    response = self.URL_FETCHER.get_response(url, follow_redirects=False)
     if response.status_code != 200:
       logging.error("API call failed with status %d." % (response.status_code))
       return None
@@ -211,7 +211,8 @@ class AuthHandler(webapp2.RequestHandler):
                                   "token": cookie_values["token"]})
     response = self.URL_FETCHER.get_response("%s/validate_token?%s" % \
                                               (self.SIGNUP_URL_, query_str),
-                                              method="POST")
+                                              method="POST",
+                                              follow_redirects=False)
     if response.status_code != 200:
       logging.error("Got bad response (%d), forcing login." % \
                     (response.status_code))
