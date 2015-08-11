@@ -237,16 +237,31 @@ class AuthHandler(webapp2.RequestHandler):
       self.response.set_cookie("auth", cookie_values, httponly=True)
 
       # Redirect to a version of the page without them.
-      url_parts = urlparse.urlparse(self.request.uri)
-      base_url = "%s://%s%s" % (url_parts.scheme, url_parts.netloc,
-                                url_parts.path)
-      query = urlparse.parse_qs(url_parts.query)
-      del query["user"]
-      del query["token"]
-      redirect_url = "%s?%s" % (base_url, urllib.urlencode(query))
-
+      redirect_url = self._remove_params(["user", "token"])
       logging.debug("Redirecting to %s." % (redirect_url))
       self.redirect(redirect_url)
       return
 
     super(AuthHandler, self).dispatch(*args, **kwargs)
+
+  """ Removes specified parameters from a GET request.
+  parameters: A list of parameters to remove.
+  Returns: A new URL to redirect to, or None if no redirect is necessary. """
+  def _remove_params(self, parameters):
+    # Redirect to a version of the page without them.
+    url_parts = urlparse.urlparse(self.request.uri)
+    base_url = "%s://%s%s" % (url_parts.scheme, url_parts.netloc,
+                              url_parts.path)
+
+    query = urlparse.parse_qs(url_parts.query)
+    changed = False
+    for parameter in parameters:
+      if parameter in query.keys():
+        del query[parameter]
+        changed = True
+
+    if not changed:
+      return None
+
+    redirect_url = "%s?%s" % (base_url, urllib.urlencode(query))
+    return redirect_url
