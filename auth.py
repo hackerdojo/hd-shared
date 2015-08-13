@@ -38,7 +38,7 @@ class UrlFetch(ResponseFactory):
 """ A RequestHandler subclass for handling requests that require authentication.
 """
 class AuthHandler(webapp2.RequestHandler):
-  SIGNUP_URL_ = "http://5-dot-signup-dev.appspot.com"
+  SIGNUP_URL_ = "http://5-dot-hd-signup-hrd.appspot.com"
   # Up here so we can change it for testing.
   URL_FETCHER = UrlFetch()
   # Properties to fetch when loading user data from the signup app.
