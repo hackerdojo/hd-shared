@@ -1,5 +1,6 @@
 import threading
 import time
+import socket
 import unittest
 
 from google.appengine.ext import testbed
@@ -41,11 +42,23 @@ class SharedApiTest(unittest.TestCase):
   handler: A function that we are serving the output of.
   port: The port for the server to listen on.
   Returns: URL to hit the web server. """
-  def __serve_once(self, handler, port=4442):
+  def __serve_once(self, handler):
     def app(e, start):
       start("200 OK", [])
       return [handler()]
-    httpd = simple_server.make_server('', port, app)
+
+    port = 1337
+
+    # Especially on Travis, we can't guarantee that a particular port will be
+    # open, so just scan forward until we find one.
+    while True:
+      try:
+        httpd = simple_server.make_server('', port, app)
+      except socket.error:
+        port += 1
+        continue
+      break
+
     thread = threading.Thread(target=httpd.handle_request)
     thread.start()
     self.threads.append(thread)
